@@ -1,17 +1,17 @@
 [package]
-name = "pathfinder"
+name = "Pathfinder"
 version = "0.1.0"
 edition = "2021"
 authors = ["JuniperFuchs <https://github.com/JuniperFuchs>"]
-description = "Pathfinder Application"
+description = "Pathfinder Visualizer Application"
 
 [package.metadata.deb]
 maintainer = "JuniperFuchs <https://github.com/JuniperFuchs/Pathfinder>"
-extended-description = "A pathfinding tool written in Rust."
+extended-description = "A visual pathfinding tool written in Rust."
 section = "utility"
 priority = "optional"
 assets = [
-    ["target/release/visual_pathfinder", "usr/bin/visual_pathfinder", "755"],
+    ["target/release/Pathfinder", "usr/bin/Pathfinder", "755"],
 ]
 
 [dependencies]

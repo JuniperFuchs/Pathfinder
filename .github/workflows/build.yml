@@ -19,13 +19,13 @@ jobs:
       matrix:
         include:
           - os: windows-latest
-            artifact_name: visual_pathfinder.exe
+            artifact_name: Pathfinder.exe
             asset_name: pathfinder-windows
           - os: ubuntu-latest
-            artifact_name: visual_pathfinder
+            artifact_name: Pathfinder
             asset_name: pathfinder-ubuntu-deb
           - os: macos-latest
-            artifact_name: visual_pathfinder
+            artifact_name: Pathfinder
             asset_name: pathfinder-macos-dmg
 
     steps:
@@ -43,12 +43,14 @@ jobs:
     - name: Build Release
       run: cargo build --release
 
+    # --- Ubuntu DEB Package Creation ---
     - name: Build Debian Package
       if: matrix.os == 'ubuntu-latest'
       run: |
         cargo install cargo-deb
         cargo deb
 
+    # --- macOS DMG Creation ---
     - name: Install create-dmg
       if: matrix.os == 'macos-latest'
       run: brew install create-dmg
@@ -57,14 +59,14 @@ jobs:
       if: matrix.os == 'macos-latest'
       run: |
         mkdir -p Pathfinder.app/Contents/MacOS
-        cp target/release/visual_pathfinder Pathfinder.app/Contents/MacOS/
+        cp target/release/Pathfinder Pathfinder.app/Contents/MacOS/
         cat << 'EOF' > Pathfinder.app/Contents/Info.plist
         <?xml version="1.0" encoding="UTF-8"?>
         <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
         <plist version="1.0">
         <dict>
             <key>CFBundleExecutable</key>
-            <string>visual_pathfinder</string>
+            <string>Pathfinder</string>
             <key>CFBundleIdentifier</key>
             <string>com.juniperfuchs.pathfinder</string>
             <key>CFBundleName</key>
@@ -89,12 +91,13 @@ jobs:
           "Pathfinder.dmg" \
           "Pathfinder.app"
 
+    # --- Upload Artifacts ---
     - name: Upload Windows Artifact
       if: matrix.os == 'windows-latest'
       uses: actions/upload-artifact@v4
       with:
         name: pathfinder-windows
-        path: pathfinder_visualizer/target/release/visual_pathfinder.exe
+        path: pathfinder_visualizer/target/release/Pathfinder.exe
 
     - name: Upload Ubuntu DEB Artifact
       if: matrix.os == 'ubuntu-latest'
