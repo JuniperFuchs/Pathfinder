@@ -15,6 +15,7 @@ jobs:
         working-directory: pathfinder_visualizer
 
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: windows-latest
@@ -52,17 +53,35 @@ jobs:
       if: matrix.os == 'macos-latest'
       run: brew install create-dmg
 
-    - name: Prepare macOS App Directory Structure
+    - name: Assemble macOS App Bundle
       if: matrix.os == 'macos-latest'
       run: |
         mkdir -p Pathfinder.app/Contents/MacOS
         cp target/release/visual_pathfinder Pathfinder.app/Contents/MacOS/
-        
+        cat << 'EOF' > Pathfinder.app/Contents/Info.plist
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+        <plist version="1.0">
+        <dict>
+            <key>CFBundleExecutable</key>
+            <string>visual_pathfinder</string>
+            <key>CFBundleIdentifier</key>
+            <string>com.juniperfuchs.pathfinder</string>
+            <key>CFBundleName</key>
+            <string>Pathfinder</string>
+            <key>CFBundlePackageType</key>
+            <string>APPL</string>
+            <key>CFBundleShortVersionString</key>
+            <string>1.0</string>
+        </dict>
+        </plist>
+        EOF
+
     - name: Create DMG Image
       if: matrix.os == 'macos-latest'
       run: |
         create-dmg \
-          --volname "Pathfinder Installer" \
+          --volname "Pathfinder" \
           --window-pos 200 120 \
           --window-size 600 300 \
           --icon-size 100 \
