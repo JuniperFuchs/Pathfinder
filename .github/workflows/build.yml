@@ -20,7 +20,7 @@ jobs:
         include:
           - os: windows-latest
             artifact_name: Pathfinder.exe
-            asset_name: pathfinder-windows
+            asset_name: pathfinder-windows-exe
           - os: ubuntu-latest
             artifact_name: Pathfinder
             asset_name: pathfinder-ubuntu-deb
@@ -43,14 +43,12 @@ jobs:
     - name: Build Release
       run: cargo build --release
 
-    # --- Ubuntu DEB Package Creation ---
     - name: Build Debian Package
       if: matrix.os == 'ubuntu-latest'
       run: |
         cargo install cargo-deb
         cargo deb
 
-    # --- macOS DMG Creation ---
     - name: Install create-dmg
       if: matrix.os == 'macos-latest'
       run: brew install create-dmg
@@ -91,12 +89,11 @@ jobs:
           "Pathfinder.dmg" \
           "Pathfinder.app"
 
-    # --- Upload Artifacts ---
     - name: Upload Windows Artifact
       if: matrix.os == 'windows-latest'
       uses: actions/upload-artifact@v4
       with:
-        name: pathfinder-windows
+        name: pathfinder-windows-exe
         path: pathfinder_visualizer/target/release/Pathfinder.exe
 
     - name: Upload Ubuntu DEB Artifact
