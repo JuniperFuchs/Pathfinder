@@ -56,8 +56,9 @@ jobs:
     - name: Assemble macOS App Bundle
       if: matrix.os == 'macos-latest'
       run: |
-        mkdir -p Pathfinder.app/Contents/MacOS
+        mkdir -p Pathfinder.app/Contents/{MacOS,Resources}
         cp target/release/Pathfinder Pathfinder.app/Contents/MacOS/
+        chmod +x Pathfinder.app/Contents/MacOS/Pathfinder
         cat << 'EOF' > Pathfinder.app/Contents/Info.plist
         <?xml version="1.0" encoding="UTF-8"?>
         <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -73,9 +74,16 @@ jobs:
             <string>APPL</string>
             <key>CFBundleShortVersionString</key>
             <string>1.0</string>
+            <key>CFBundleVersion</key>
+            <string>1</string>
         </dict>
         </plist>
         EOF
+
+    - name: Sign macOS App Bundle
+      if: matrix.os == 'macos-latest'
+      run: |
+        codesign --force --deep --sign - Pathfinder.app/
 
     - name: Create DMG Image
       if: matrix.os == 'macos-latest'
@@ -88,6 +96,17 @@ jobs:
           --app-drop-link 400 100 \
           "Pathfinder.dmg" \
           "Pathfinder.app"
+
+    - name: Verify Build Artifacts
+      run: |
+        if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+          ls -lh target/release/Pathfinder.exe
+        elif [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
+          ls -lh target/debian/*.deb
+        else
+          ls -lh Pathfinder.dmg
+          file Pathfinder.dmg
+        fi
 
     - name: Upload Windows Artifact
       if: matrix.os == 'windows-latest'
