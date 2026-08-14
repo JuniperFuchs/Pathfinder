@@ -97,16 +97,21 @@ jobs:
           "Pathfinder.dmg" \
           "Pathfinder.app"
 
-    - name: Verify Build Artifacts
+    - name: Verify Windows Artifact
+      if: matrix.os == 'windows-latest'
       run: |
-        if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
-          ls -lh target/release/Pathfinder.exe
-        elif [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
-          ls -lh target/debian/*.deb
-        else
-          ls -lh Pathfinder.dmg
-          file Pathfinder.dmg
-        fi
+        ls -lh target/release/Pathfinder.exe
+
+    - name: Verify Ubuntu Artifact
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        ls -lh target/debian/*.deb
+
+    - name: Verify macOS Artifact
+      if: matrix.os == 'macos-latest'
+      run: |
+        ls -lh Pathfinder.dmg
+        file Pathfinder.dmg
 
     - name: Upload Windows Artifact
       if: matrix.os == 'windows-latest'
