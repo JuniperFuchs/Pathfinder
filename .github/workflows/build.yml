@@ -100,7 +100,7 @@ jobs:
     - name: Verify Windows Artifact
       if: matrix.os == 'windows-latest'
       run: |
-        ls -lh target/release/Pathfinder.exe
+        Get-ChildItem target/release/Pathfinder.exe | Format-List Name, @{Name="Size (MB)"; Expression={"{0:N2}" -f ($_.Length/1MB)}}
 
     - name: Verify Ubuntu Artifact
       if: matrix.os == 'ubuntu-latest'
