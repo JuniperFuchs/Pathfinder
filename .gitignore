@@ -1,1 +1,6 @@
-
+/pathfinder_visualizer/target/
+**/target/
+/Git-Ignore-Folder/
+.DS_Store
+**/.DS_Store
+.vscode/
