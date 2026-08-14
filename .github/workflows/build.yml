@@ -1,6 +1,7 @@
 name: Build Cross-Platform Executables
 
 on:
+  workflow_dispatch:
   push:
     tags:
       - 'v*'
