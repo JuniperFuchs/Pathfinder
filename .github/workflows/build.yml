@@ -22,10 +22,10 @@ jobs:
             asset_name: pathfinder-windows
           - os: ubuntu-latest
             artifact_name: visual_pathfinder
-            asset_name: pathfinder-linux
+            asset_name: pathfinder-ubuntu-deb
           - os: macos-latest
             artifact_name: visual_pathfinder
-            asset_name: pathfinder-macos
+            asset_name: pathfinder-macos-dmg
 
     steps:
     - uses: actions/checkout@v4
@@ -42,8 +42,51 @@ jobs:
     - name: Build Release
       run: cargo build --release
 
-    - name: Upload Artifact
+    - name: Build Debian Package
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        cargo install cargo-deb
+        cargo deb
+
+    - name: Install create-dmg
+      if: matrix.os == 'macos-latest'
+      run: brew install create-dmg
+
+    - name: Prepare macOS App Directory Structure
+      if: matrix.os == 'macos-latest'
+      run: |
+        mkdir -p Pathfinder.app/Contents/MacOS
+        cp target/release/visual_pathfinder Pathfinder.app/Contents/MacOS/
+        
+    - name: Create DMG Image
+      if: matrix.os == 'macos-latest'
+      run: |
+        create-dmg \
+          --volname "Pathfinder Installer" \
+          --window-pos 200 120 \
+          --window-size 600 300 \
+          --icon-size 100 \
+          --app-drop-link 400 100 \
+          "Pathfinder.dmg" \
+          "Pathfinder.app"
+
+    - name: Upload Windows Artifact
+      if: matrix.os == 'windows-latest'
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ matrix.asset_name }}
-        path: pathfinder_visualizer/target/release/${{ matrix.artifact_name }}
+        name: pathfinder-windows
+        path: pathfinder_visualizer/target/release/visual_pathfinder.exe
+
+    - name: Upload Ubuntu DEB Artifact
+      if: matrix.os == 'ubuntu-latest'
+      uses: actions/upload-artifact@v4
+      with:
+        name: pathfinder-ubuntu-deb
+        path: pathfinder_visualizer/target/debian/*.deb
+
+    - name: Upload macOS DMG Artifact
+      if: matrix.os == 'macos-latest'
+      uses: actions/upload-artifact@v4
+      with:
+        name: pathfinder-macos-dmg
+        path: pathfinder_visualizer/Pathfinder.dmg
