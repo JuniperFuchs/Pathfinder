@@ -1,0 +1,48 @@
+name: Build Cross-Platform Executables
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: Build for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: pathfinder_visualizer
+
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            artifact_name: visual_pathfinder.exe
+            asset_name: pathfinder-windows
+          - os: ubuntu-latest
+            artifact_name: visual_pathfinder
+            asset_name: pathfinder-linux
+          - os: macos-latest
+            artifact_name: visual_pathfinder
+            asset_name: pathfinder-macos
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install Linux Dependencies
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libx11-dev libxi-dev libgl1-mesa-dev libasound2-dev
+
+    - name: Install Rust Toolchain
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Build Release
+      run: cargo build --release
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.asset_name }}
+        path: pathfinder_visualizer/target/release/${{ matrix.artifact_name }}
